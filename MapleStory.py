@@ -1,30 +1,14 @@
-'''Author: Cheng Lin
-Date: June 5th, 2012
-Description: This program is a mini version of the 2D game Maplestory. 
-It is a one player game and will be using the same images and similar
-sprites as the original but the game will be implemented differently 
-overall. The game will be both keyboard and mouse controlled. The left 
-and right arrow keys will move the player left and right, respectively. 
-The x key will allow the user to jump and the z key will allow the user
-to attack. The objective of the game is to kill a bunch of monsters and 
-to collect the gold coins that they will drop in random amounts; a NPC 
-will be there to aid the player by restoring their HP. The game will 
-end once all four stages are complete or when the player�s health points 
-reach zero. '''
+import pygame
+import random
+import Sprites
 
-# I - Import and Initialize
-import pygame, Sprites, random
 pygame.init()
-pygame.mixer.init()
-screen = pygame.display.set_mode([1024, 670])
+screen = pygame.display.set_mode((1024, 670))
 
 def game(cursor, gender):
-    '''This function is the main game. It will take a cursor sprite and 
-    a gender as parameters. The gender parameter will determine the sex 
-    of the player'''
     # Display
-    pygame.display.set_caption("Mini MapleStory :)")
-     
+    pygame.display.set_caption("Mini MapleStory")
+
     # Entities
     background = pygame.Surface(screen.get_size()).convert()
     background.fill((0,0,0))
@@ -398,27 +382,15 @@ def game(cursor, gender):
         return 'quit'
 
 def menu(cursor):
-    '''This function defines a main menu screen for the game. It will take a 
-    cursor sprite as a parameter'''
-    # Display
     pygame.display.set_caption("MapleStory Selection Screen")
-    
-    #Entities
     background = pygame.image.load('./Backgrounds/HomeScreen.jpg').convert()
     screen.blit(background,(0,0))
-    
-    #Create buttons that will lead to different pages
-    button1 = Sprites.Button('START !', (523, 172), 56, (150,150,170),False)
+    button1 = Sprites.Button('START', (523, 172), 56, (150,150,170),False)
     button2 = Sprites.Button('Controls', (376, 357), 36,(150,150,170),False)
     button3 = Sprites.Button('About', (615, 360), 36,(150,150,170),False)
     button4 = Sprites.Button('Quit', (153, 403), 36, (150,150,170),False)
-    #Put the buttons into a list for easy collision detections with the mouse
     buttonlist = [button1, button2,button3, button4]
-    
-    #Group the sprites 
     allSprites = pygame.sprite.OrderedUpdates(buttonlist, cursor)
-
-    #Load sound effect
     enter = pygame.mixer.Sound("./Sound Effects/GameIn.wav")
     enter.set_volume(0.5)
     click = pygame.mixer.Sound("./Sound Effects/MouseClick.wav")
@@ -427,249 +399,163 @@ def menu(cursor):
     mouse_over.set_volume(0.4)
     page_flip = pygame.mixer.Sound("./Sound Effects/WorldSelect.wav")
     page_flip.set_volume(0.6)
-
-    # ACTION
-     
-    # Assign 
     clock = pygame.time.Clock()
     keepGoing = True
- 
-    # Hide the mouse pointer
     pygame.mouse.set_visible(False)
- 
-    # Loop
     while keepGoing:
-        # Time
         clock.tick(30)
-     
-        # Events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 keepGoing = False
-                
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 cursor.click()
                 click.play()
-                #If the user clicked the start button, return start to main()
-                #To start the game
-                if button1.rect.collidepoint(pygame.mouse.get_pos()):
+                if button1.rect.collidepoint(event.pos):
                     enter.play()
                     return 'start'
-                #If the user clicked the instructions button, return instructions
-                elif button2.rect.collidepoint(pygame.mouse.get_pos()):
+                elif button2.rect.collidepoint(event.pos):
                     page_flip.play()
                     return 'instructions'
-                #If the user clicked the about button, return about 
-                elif button3.rect.collidepoint(pygame.mouse.get_pos()):
+                elif button3.rect.collidepoint(event.pos):
                     page_flip.play()
                     return 'about'
-                #If the user clicked the quit button, exit the loop 
-                elif button4.rect.collidepoint(pygame.mouse.get_pos()):
+                elif button4.rect.collidepoint(event.pos):
                     keepGoing = False
-                
-            elif event.type == pygame.MOUSEBUTTONUP:
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 cursor.release()
-                
             elif event.type == pygame.MOUSEMOTION:
-                #Highlight the button that the mouse is hovering over
-                for index in range(len(buttonlist)):          
-                    if buttonlist[index].rect.collidepoint\
-                       (pygame.mouse.get_pos()):
-                        buttonlist[index].highlight()
-                        mouse_over.play()
+                for index in range(len(buttonlist)):
+                    if buttonlist[index].rect.collidepoint(event.pos):
+                        if not buttonlist[index].get_collide():
+                            buttonlist[index].highlight()
+                            mouse_over.play()
                     else:
                         buttonlist[index].normal()
-
-        #Refresh screen
         allSprites.clear(screen, background)
         allSprites.update()
         allSprites.draw(screen)
-        
         pygame.display.flip()
-    
-    #Unhide mouse pointer
     pygame.mouse.set_visible(True)
-    #return quit (quits the game)
     return 'quit'
     
 def about(cursor):
-    '''This function creates a page for the game that provides background
-    information about the game. It will take a cursor sprite as a parameter'''
-    # D - Display configuration
     pygame.display.set_caption("About MapleStory")
-     
-    # E - Entities
     background = pygame.image.load('./Backgrounds/AboutScreen.jpg').convert()
     screen.blit(background, (0,0))
-    
-    #Create a back_button that will lead back to the main menu of the game
     back_button = Sprites.Button('Back to Menu', (800,360),29,(61,61,70),False)
-    
-    #Group the back button and cursor sprites
     allSprites = pygame.sprite.Group(back_button, cursor)
-    
-    #Load sound effect
     click = pygame.mixer.Sound("./Sound Effects/MouseClick.wav")
     click.set_volume(0.6)
     mouse_over = pygame.mixer.Sound("./Sound Effects/MouseOver.wav")
     mouse_over.set_volume(0.4)
     page_flip = pygame.mixer.Sound("./Sound Effects/WorldSelect.wav")
     page_flip.set_volume(0.6)
-     
-    # A - Action (broken into ALTER steps)
-     
-    # A - Assign values to key variables
     clock = pygame.time.Clock()
     keepGoing = True
-    
-    # Hide the mouse pointer
     pygame.mouse.set_visible(False)
-     
-    # L - Loop
     while keepGoing:
-     
-        # T - Timer to set frame rate
         clock.tick(30)
-     
-        # E - Event handling
         for event in pygame.event.get():
-            #Check if the player quit the game
             if event.type == pygame.QUIT:
                 keepGoing = False
-            
-            #Check for mouse events
             elif event.type == pygame.MOUSEMOTION:
-                #If the mouse is hovering over the backbutton, change the
-                #colour of the back button (highlight)
-                if back_button.rect.collidepoint(pygame.mouse.get_pos()):
-                    back_button.highlight()
-                    mouse_over.play()
+                if back_button.rect.collidepoint(event.pos):
+                    if not back_button.get_collide():
+                        back_button.highlight()
+                        mouse_over.play()
                 else:
-                    #Return the colour of the text on the back button back to
-                    #normal once the mouse is no longer colliding with it
                     back_button.normal()
-                    
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 cursor.click()
                 click.play()
-                #If the player clicked the back button, return to the menu
-                if back_button.rect.collidepoint(pygame.mouse.get_pos()):
+                if back_button.rect.collidepoint(event.pos):
                     page_flip.play()
                     return 'menu'
-                
-            elif event.type == pygame.MOUSEBUTTONUP:
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 cursor.release()
-
-        # R - Refresh display
         allSprites.clear(screen, background)
         allSprites.update()
         allSprites.draw(screen)
-        
         pygame.display.flip()
-        
-    #Unhide mouse pointer
     pygame.mouse.set_visible(True)
     return 'quit'
 
 def instructions(cursor):
-    '''This function creates an instruction screen for the game. It will take
-    a cursor sprite as a parameter.'''
-    # Display
     pygame.display.set_caption("Instructions")
-    
-    # Entities
     background = pygame.image.load('./Backgrounds/InstructionScreen.jpg').convert()
     screen.blit(background,(0,0))
-
-    #Create a back button that leads to the menu
     back_button = Sprites.Button('Back to Menu', (860,580),29,(61,61,70),False)
-    
-    #Create a player that the user can practice with before starting the game
     player = Sprites.Player(screen, 1)
-
-    #Group the sprites
     allSprites = pygame.sprite.OrderedUpdates(back_button, cursor, player)
-    
-    #Load sound effect
     click = pygame.mixer.Sound("./Sound Effects/MouseClick.wav")
     click.set_volume(0.6)
     mouse_over = pygame.mixer.Sound("./Sound Effects/MouseOver.wav")
     mouse_over.set_volume(0.4)
     page_flip = pygame.mixer.Sound("./Sound Effects/WorldSelect.wav")
     page_flip.set_volume(0.6)
-    
-    # ACTION
-     
-    # Assign 
     clock = pygame.time.Clock()
     keepGoing = True
- 
-    # Hide the mouse pointer
     pygame.mouse.set_visible(False)
- 
-    # Loop
+    key_left = False
+    key_right = False
     while keepGoing:
-        # Time
         clock.tick(30)
-     
-        # Events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 keepGoing = False
-                
-            #Checking if the user clicked the backbutton    
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 cursor.click()
                 click.play()
-                if back_button.rect.collidepoint(pygame.mouse.get_pos()):
+                if back_button.rect.collidepoint(event.pos):
                     page_flip.play()
-                    #Return to main menu
                     return 'menu'
-                
-            elif event.type == pygame.MOUSEBUTTONUP:
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 cursor.release()
-                
-            #Check to see if the cursor is colliding with the back button
-            #If so, highlight the text on the button
-            elif event.type == pygame.MOUSEMOTION:     
-                if back_button.rect.collidepoint(pygame.mouse.get_pos()):
-                    back_button.highlight()
-                    mouse_over.play()
+            elif event.type == pygame.MOUSEMOTION:
+                if back_button.rect.collidepoint(event.pos):
+                    if not back_button.get_collide():
+                        back_button.highlight()
+                        mouse_over.play()
                 else:
                     back_button.normal()
-                    
-            #Change the animation of the player
             elif event.type == pygame.KEYDOWN:
-                keyName = pygame.key.name(event.key)
-                if keyName == 'x':
+                if event.key == pygame.K_x:
                     player.jump()
-                if keyName == 'left':
-                    player.moving(-5)
-                if keyName == 'right':
-                    player.moving(+5)
-                if keyName == 'z':
+                elif event.key == pygame.K_LEFT:
+                    key_left = True
+                    if key_right:
+                        player.moving(0)
+                    else:
+                        player.moving(-5)
+                elif event.key == pygame.K_RIGHT:
+                    key_right = True
+                    if key_left:
+                        player.moving(0)
+                    else:
+                        player.moving(+5)
+                elif event.key == pygame.K_z:
                     player.attacking(True)
-                    
             elif event.type == pygame.KEYUP:
-                if event.key == pygame.K_RIGHT:
-                    player.moving(0)
                 if event.key == pygame.K_LEFT:
-                    player.moving(0)
-
-        #Refresh screen
+                    key_left = False
+                    if key_right:
+                        player.moving(+5)
+                    else:
+                        player.moving(0)
+                elif event.key == pygame.K_RIGHT:
+                    key_right = False
+                    if key_left:
+                        player.moving(-5)
+                    else:
+                        player.moving(0)
         allSprites.clear(screen, background)
         allSprites.update()
         allSprites.draw(screen)
-
         pygame.display.flip()
-         
-    #Unhide mouse pointer
     pygame.mouse.set_visible(True)
     return 'quit'
-    
+
 def selection(cursor):
-    '''This function creates a page for the game that allows the user to choose 
-    the sex of their character. It will take a cursor sprite as a parameter'''
     # D - Display configuration
     pygame.display.set_caption("Character Selection")
      
@@ -762,12 +648,6 @@ def selection(cursor):
     return 'quit'
         
 def hallOfFame(winner, gold_collected, new_time, cursor):
-    '''This function displays an end game screen. It takes a winner boolean
-    variable, gold_collected, and new_time as parameters. It will show how 
-    much gold the player collected and how long it took for them to finish the
-    adventure/how long they lasted. It will also take a cursor sprite as a 
-    parameter'''
-    
     # D - Display configuration
     pygame.display.set_caption("Hall of Fame")
      
@@ -884,45 +764,23 @@ def hallOfFame(winner, gold_collected, new_time, cursor):
     return 'quit'        
 
 def main():
-    '''This function defines the 'mainline logic' for our game.'''
-    # Create a custom cursor
-    #The purpose of creating the cursor here is because it is used in all the
-    #different screens of the game
     cursor = Sprites.Mouse()
-    
-    #Initialize finish to False
     finish = False
-    
+    pygame.mixer.music.load("./Background music/WelcometoMapleStory.mp3")
+    pygame.mixer.music.set_volume(0.3)
     while finish != 'quit':
-        #Load Background Music
-        pygame.mixer.music.load("./Background music/WelcometoMapleStory.mp3")
-        pygame.mixer.music.set_volume(0.3)
         pygame.mixer.music.play(-1)
-        
-        #Call the main menu
         finish = menu(cursor)
-        #If the user clicks the about button in the main menu, go to that page
         if finish == 'about':
-            #If the user clicks the back button, return to main menu
-            finish = about(cursor) 
-            if finish == 'menu':
-                finish = menu(cursor)
-        #If user clicks the controls button, go to the instructions page        
-        if finish == 'instructions':
-            #If the user clicks the back button, return to menu
-            finish  = instructions(cursor) 
-            if finish == 'menu':
-                finish = menu(cursor)   
-        #If the user clicked the start button, go to the selection screen
-        if finish == 'start':
-            #Choose the gender of their player
+            if about(cursor) != 'menu':
+                break
+        elif finish == 'instructions':
+            if instructions(cursor) != 'menu':
+                break
+        elif finish == 'start':
             finish = selection(cursor)
             if finish in [1,2]:
-                #Pass in an integer to the main game.
-                #The integer will be used to identify the sex of the player
                 finish = game(cursor, finish)
-                
-    pygame.quit()
-    
-# Call the main function
-main()
+
+if __name__ == "__main__":
+    main()
