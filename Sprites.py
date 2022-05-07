@@ -50,7 +50,6 @@ class Player(pygame.sprite.Sprite):
         self.__move = 0
 
     def get_health_points(self):
-        '''This method will return the number in the __health_points attribute'''
         return self.__health_points
 
     def get_direction(self):
@@ -62,8 +61,6 @@ class Player(pygame.sprite.Sprite):
             return 1
 
     def recover(self):
-        '''This method recovers the player's __health_points to 5000.
-         This method returns nothing'''
         self.__health_points = 5000
 
     def jump(self):
@@ -116,28 +113,17 @@ class Player(pygame.sprite.Sprite):
         self.rect.bottom = self.__screen.get_height() - 72
 
     def take_damage(self):
-        '''This method will choose a random number between 100 to 400 and 
-        subtract the number from __health_points. This method returns the 
-        number in the __take_damage attribute after the assignment.'''
         self.__take_damage = random.randrange(100,401)
         self.__health_points -= self.__take_damage
         return self.__take_damage
 
     def take_boss_damage(self):
-        '''This method will choose a random number between 500 to 999 and 
-        subtract the number from __health_points. This method returns the 
-        number in self.__take_damage'''
         self.__take_damage = random.randrange(500,1000)
         self.__health_points -= self.__take_damage
         return self.__take_damage
 
     def map_moving(self, integer):
-        '''This method will move the player in a certain direction that 
-        depends on the integer parameter. This is so that the player does
-        not continually move when the map is moving. This method returns nothing'''
-        #Set map_moving to True
         self.__map_moving = True
-        #Assign the vector of the movement of the map to integer
         self.__move = integer
 
     def update(self):
@@ -237,183 +223,98 @@ class Player(pygame.sprite.Sprite):
 
 class Monster(pygame.sprite.Sprite):
     def __init__(self,screen,integer):
-        '''This initializer method will create a monster on a random part of
-        the screen on the floor of the map. It will take a screen and integer as 
-        parameters and initialize its health_points to 3000 and its dx to 1/0/
-        -1 (So not all of the monsters will move in the same direction); this 
-        will be dependent on the integer parameter. It will set the image 
-        attribute to the first image of the monster either moving left or 
-        right or standing; also depending on the integer value. '''
-        # Call the parent __init__() method
-        pygame.sprite.Sprite.__init__(self)
-
-        #Create a list of images of the first monster depending on the integer parameter
+        super().__init__()
         self.__moving1 = []
         for i in range(3):
-            self.__temp_image = pygame.image.load\
-                ('./Monster1/move'+str(integer+1)+'_' + str(i) + '.png')\
-                .convert()
+            self.__temp_image = pygame.image.load('./Monster1/move' + str(integer+1)+ '_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((0,255,0))
             self.__moving1.append(self.__temp_image)
-
-        #Load a list of images of the first monster dying
         self.__dying1 = []
         for i in range(3):
-            self.__temp_image = pygame.image.load('./Monster1/die'+\
-                str(integer+1)+'_' +\
-                str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Monster1/die' + str(integer+1)+ '_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((0,255,0))
             self.__dying1.append(self.__temp_image)
-
-        #Create lists of images for the second monster
         if integer != 0:
             self.__moving2 = []
             for i in range(25):
-                self.__temp_image = pygame.image.load('./Monster2/stand'+\
-                    str(integer+1)+'_' + str(i) + '.png').convert()
+                self.__temp_image = pygame.image.load('./Monster2/stand' + str(integer+1)+'_' + str(i) + '.png').convert()
                 self.__temp_image.set_colorkey((255,171,166))
                 self.__moving2.append(self.__temp_image)
         else:
             self.__moving2 = []
             for i in range(8):
-                self.__temp_image = pygame.image.load('./Monster2/attack'+\
-                    str(integer+1)+'_' + str(i) + '.png').convert()
+                self.__temp_image = pygame.image.load('./Monster2/attack' + str(integer+1)+'_' + str(i) + '.png').convert()
                 self.__temp_image.set_colorkey((255,171,166))
                 self.__moving2.append(self.__temp_image)
-
-        #Load a list of images of the second monster dying
         self.__dying2 = []
         for i in range(17):
-            self.__temp_image = pygame.image.load('./Monster2/die'+\
-                    str(integer+1)+'_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Monster2/die' + str(integer+1)+'_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((255,171,166))
             self.__dying2.append(self.__temp_image)
-
-        #Create a list of images of the third monster depending on the integer parameter
         if integer == 0:
             self.__moving3 = []
-            for i in range(16):
-                self.__temp_image = pygame.image.load('./Monster3/attack'+\
-                    str(integer+1)+'_' + str(i) + '.png').convert()
+            for i in range(17):
+                self.__temp_image = pygame.image.load('./Monster3/attack' + str(integer+1)+'_' + str(i) + '.png').convert()
                 self.__temp_image.set_colorkey((150,150,150))
                 self.__moving3.append(self.__temp_image)
         else:
             self.__moving3 = []
             for i in range(5):
-                self.__temp_image = pygame.image.load('./Monster3/move'+\
-                    str(integer+1)+'_' + str(i) + '.png').convert()
+                self.__temp_image = pygame.image.load('./Monster3/move' + str(integer+1)+'_' + str(i) + '.png').convert()
                 self.__temp_image.set_colorkey((150,150,150))
                 self.__moving3.append(self.__temp_image)
-
-        #Load a list of images of the third monster dying
         self.__dying3 = []
         for i in range(3):
-            self.__temp_image = pygame.image.load('./Monster3/die'+\
-                str(integer+1)+'_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Monster3/die' + str(integer+1)+'_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((150,150,150))
             self.__dying3.append(self.__temp_image)
-
-        #The fourth monster will be moving and flying in both left and right
-        #Directions unlike the previous monsters
-        #Load a list of images of the fourth monster attacking and flying left
         self.__attacking_left4 = []
         for i in range(36):
-            self.__temp_image = pygame.image.load\
-                ('./Monster4/attack1_'+str(i) +'.png').convert()
+            self.__temp_image = pygame.image.load('./Monster4/attack1_'+str(i) +'.png').convert()
             self.__temp_image.set_colorkey((200,200,255))
             self.__attacking_left4.append(self.__temp_image)
-
-        #Load a list of images of the fourth monster attacking and flying right
         self.__attacking_right4 = []
         for i in range(36):
-            self.__temp_image = pygame.image.load\
-                ('./Monster4/attack2_'+str(i) +'.png').convert()
+            self.__temp_image = pygame.image.load('./Monster4/attack2_'+str(i) +'.png').convert()
             self.__temp_image.set_colorkey((200,200,255))
             self.__attacking_right4.append(self.__temp_image)
-
-        #Load a list of images of the fourth monster dying and facing left
         self.__dying_left4 = []
         for i in range(5):
-            self.__temp_image = pygame.image.load\
-                ('./Monster4/die1_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Monster4/die1_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((200,200,255))
             self.__dying_left4.append(self.__temp_image)
-
-        #Load a list of images of the fourth monster dying and facing right
         self.__dying_right4 = []
         for i in range(5):
-            self.__temp_image = pygame.image.load\
-                ('./Monster4/die2_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Monster4/die2_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((200,200,255))
             self.__dying_right4.append(self.__temp_image)
-
-        # Set the image attribute for our Monster sprite
         self.__moving = self.__moving1
         self.__dying = self.__dying1
         self.image = self.__moving[0]
-
-        #This instance variable will hold a list of dimensions of the game maps
         self.__map_dimensions = [1775,1700,1683,1975]
-
-        #Set the rect attribute for our Monster sprite
         self.rect = self.image.get_rect()
-        #Place the monster randomly on the floor of map
         self.rect.right = random.randrange(250, self.__map_dimensions[0])
-
-        #The image of the monster at rest needs to be positioned a bit lower
-        #due to unusual dimensions
         if integer == 0:
             self.rect.bottom = screen.get_height() - 60
         else:
             self.rect.bottom = screen.get_height() - 70
-
-        #Initialize health points of monster
         self.__health_points = 3000
-
-        #Initialize damage taken to 0
         self.__take_damage = 0
-
-        #Attributes for dying animations
         self.__dead = False
         self.__finished = False
-
-        #Attribute used to keep track of the direction of monster
-        #(Used for fourth monster only)
         self.__going_left = True
-
-        #Keep track of screen
         self.__screen = screen
-
-        #Keep track of current monster
         self.__current_monster = 1
-
-        #This attribute will be used for animation purposes.
-        #It is used to control the rate at which the image updates
         self.__counter = 0
-
-        #List of counters for updating the monster frames/animations. This is
-        #because different monsters will animate its frames at different speeds
-
-        #List for moving animations
         self.__counter_list1 = [6,4,6,3]
-        #List for dying animations
         self.__counter_list2 = [4,3,10,6]
-
-        #Attribute to index the above lists. A random index will be selected
-        #So not all monsters are animating the exact same frames at the same time
         self.__index = random.randrange(0,3)
         self.__dying_index = -1
-        #X vector of monster
         self.__dx = integer
-
-        #Attributes used to move the monster with the map
         self.__map_moving = False
         self.__move = 0
 
     def take_damage(self):
-        '''This method will choose a random number between 200 to 1000 and 
-        subtracts the number from __health_points. This method returns the 
-        number in self.__take_damage'''
         self.__take_damage = random.randrange(200,1000)
         self.__health_points -= self.__take_damage
         return self.__take_damage
@@ -511,24 +412,15 @@ class Monster(pygame.sprite.Sprite):
             self.rect.bottom = self.__screen.get_height()-70
 
     def get_position(self):
-        '''This method returns the position of the monster before it is moved
-        off the screen (dead)'''
         return self.__position
 
     def dead(self):
-        '''This method will check if the monster died and the animation has
-        finished. It will return True if so'''
         if self.__finished:
             return True
         return False
 
     def map_moving(self, integer):
-        '''This method will move the monster in a certain direcction that 
-        depends on the integer parameter. This is so that the monster does
-        not contually move when the map is moving. This method returns nothing'''
-        #Set map_moving to True
         self.__map_moving = True
-        #Assign the vector of the movement of the map to integer
         self.__move = integer
 
     def update(self):
@@ -627,228 +519,131 @@ class Monster(pygame.sprite.Sprite):
 
 class BossMonster(pygame.sprite.Sprite):
     def __init__(self, screen):
-        '''This initializer method will create a boss monster at the bottom right 
-        of the screen. It will take a screen as a parameter and initialize 
-        its health_points to 50000 and __dx to -1.5 It will set the image
-        attribute to the first image of the boss moving left.'''
-        # Call the parent __init__() method
-        pygame.sprite.Sprite.__init__(self)
-
-        #Create a list of images of the First Boss moving left
+        super().__init__()
         self.__going_left1 = []
         for i in range(11):
-            self.__temp_image = pygame.image.load\
-                ('./Boss1/attack1_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Boss1/attack1_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((255,255,166))
             self.__going_left1.append(self.__temp_image)
-
-        #Create a list of images of the First Boss moving right
         self.__going_right1 = []
         for i in range(11):
-            self.__temp_image = pygame.image.load\
-                ('./Boss1/attack2_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Boss1/attack2_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((255,255,166))
             self.__going_right1.append(self.__temp_image)
-
-        #Create lists of images of the First Boss dying
         self.__dying_left1 = []
         for i in range(6):
-            self.__temp_image = pygame.image.load\
-                ('./Boss1/die1_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Boss1/die1_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((255,255,166))
             self.__dying_left1.append(self.__temp_image)
-
         self.__dying_right1 = []
         for i in range(6):
-            self.__temp_image = pygame.image.load\
-                ('./Boss1/die2_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Boss1/die2_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((255,255,166))
             self.__dying_right1.append(self.__temp_image)
-
-        #Create a list of images of the Second boss moving left
         self.__going_left2 = []
         for i in range(11):
-            self.__temp_image = pygame.image.load\
-                ('./Boss2/attack2_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Boss2/attack2_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((255,186,92))
             self.__going_left2.append(self.__temp_image)
-
-        #Create a list of images of the Second boss moving right
         self.__going_right2 = []
         for i in range(11):
-            self.__temp_image = pygame.image.load\
-                ('./Boss2/attack1_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Boss2/attack1_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((255,186,92))
             self.__going_right2.append(self.__temp_image)
-
-        #Create lists of images of the Second boss dying
         self.__dying_left2 = []
         for i in range(21):
-            self.__temp_image = pygame.image.load\
-                ('./Boss2/die2_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Boss2/die2_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((255,224,255))
             self.__dying_left2.append(self.__temp_image)
-
         self.__dying_right2 = []
         for i in range(21):
-            self.__temp_image = pygame.image.load\
-                ('./Boss2/die1_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Boss2/die1_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((255,224,255))
             self.__dying_right2.append(self.__temp_image)
-
-        #Create a list of images of the Third Boss moving left
         self.__going_left3 = []
         for i in range(16):
-            self.__temp_image = pygame.image.load\
-                ('./Boss3/attack1_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Boss3/attack1_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((150,150,150))
             self.__going_left3.append(self.__temp_image)
-
-        #Create a list of images of the Third Boss moving right
         self.__going_right3 = []
         for i in range(16):
-            self.__temp_image = pygame.image.load\
-                ('./Boss3/attack2_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Boss3/attack2_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((150,150,150))
             self.__going_right3.append(self.__temp_image)
-
-        #Create lists of images of the Third Boss dying
         self.__dying_left3 = []
         for i in range(10):
-            self.__temp_image = pygame.image.load\
-                ('./Boss3/die1_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Boss3/die1_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((150,150,150))
             self.__dying_left3.append(self.__temp_image)
-
         self.__dying_right3 = []
         for i in range(10):
-            self.__temp_image = pygame.image.load\
-                ('./Boss3/die2_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Boss3/die2_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((150,150,150))
             self.__dying_right3.append(self.__temp_image)
-
-        #Create a list of images of the Fourth Boss moving left
         self.__going_left4 = []
         for i in range(29):
-            self.__temp_image = pygame.image.load\
-                ('./Boss4/attack1_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Boss4/attack1_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((255,255,166))
             self.__going_left4.append(self.__temp_image)
-
-        #Create a list of images of the Fourth Boss moving right
         self.__going_right4 = []
         for i in range(29):
-            self.__temp_image = pygame.image.load\
-                ('./Boss4/attack2_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Boss4/attack2_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((255,255,166))
             self.__going_right4.append(self.__temp_image)
-
-        #Create lists of images of the Fourth Boss dying
         self.__dying_left4 = []
         for i in range(11):
-            self.__temp_image = pygame.image.load\
-                ('./Boss4/die1_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Boss4/die1_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((255,255,217))
             self.__dying_left4.append(self.__temp_image)
-
         self.__dying_right4 = []
         for i in range(11):
-            self.__temp_image = pygame.image.load\
-                ('./Boss4/die2_' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./Boss4/die2_' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((255,255,217))
             self.__dying_right4.append(self.__temp_image)
-
-        # Set the image attribute for our Boss Monster sprite
         self.__going_left = self.__going_left1
         self.__going_right = self.__going_right1
         self.__dying_left = self.__dying_left1
         self.__dying_right = self.__dying_right1
         self.image = self.__going_left[0]
-
-        #This instance variable will hold a list of dimensions of the game maps
         self.__map_dimensions = [1775,1700,1683,1975]
-
-        # Set the rect attribute for our Boss Monster sprite
         self.rect = self.image.get_rect()
-        #Place the Boss on the bottom right of the map
-        self.rect.bottomright = (self.__map_dimensions[0],\
-                                screen.get_height() - 70)
-
-        # Initialize health points to 70000
+        self.rect.bottomright = (self.__map_dimensions[0], screen.get_height() - 70)
         self.__health_points = 70000
-
-        #Initialize damage taken to 0
         self.__take_damage = 0
-
-        #Boolean variables for dying animation
         self.__finished = False
         self.__dead = False
-        #Initialize Boss to go left
         self.__direction_left = True
-
-        #This attribute will be used for animation purposes.
-        #It is used to control the rate at which the image updates
         self.__counter = 0
-
-        #Attribute to index the above lists
         self.__index = 1
         self.__dying_index = 0
-
-        #X vector of monster
         self.__dx = -9
-        #Y vector of monster (The first boss will not fly)
         self.__dy = 0
-
-        #Keep track of which boss the player is currently fighting
         self.__current_boss = 1
-
-        #Variable to keep track of screen
         self.__screen = screen
-
-        #Used for returning purposes
         self.__return = True
-
-        #This boolean variable will be used to move the monster with the map
         self.__map_moving = False
         self.__move = 0
-
-        #List of positions that are used for the bottom rect of the boss
-        #during dying animations
-        self.__dying_position = [screen.get_height(),screen.get_height()-50,\
-                screen.get_height() - 100, screen.get_height()-10]
-
-        #List of counters for updating the boss frames/animations. This is
-        #because different bosses will animate its frames at different speeds
-        #List for moving animations
+        self.__dying_position = [screen.get_height(),screen.get_height()-50, screen.get_height() - 100, screen.get_height()-10]
         self.__counter_list1 = [4,3,4,4]
-        #List for dying frames
         self.__counter_list2 = [11,6,5,8]
 
     def take_damage(self):
-        '''This method will choose a random number between 1000 to 5000 and 
-        subtract the number from __health_points. This method returns the 
-        assigned random number.'''
         self.__take_damage = random.randrange(1000,5000)
         self.__health_points -=self.__take_damage
         return self.__take_damage
 
     def dead(self):
-        '''This method will check if the boss died. It will return True if so'''
         if self.__finished:
             return True
         return False
 
     def get_status(self):
-        '''This method will return True if the monster's HP is less than or equal
-        to zero'''
         if self.__dead and self.__return:
             self.__return = False
             return True
         return False
 
     def get_position(self):
-        '''This method returns the position of the boss before it is moved
-        off the screen (dead)'''
         return self.__position
 
     def reset(self):
@@ -917,12 +712,7 @@ class BossMonster(pygame.sprite.Sprite):
                                  self.__screen.get_height()-60)
 
     def map_moving(self, integer):
-        '''This method will move the monster in a certain direcction that 
-        depends on the integer parameter. This is so that the monster does
-        not continually move when the map is moving.'''
-        #Set map_moving to True
         self.__map_moving = True
-        #Assign the vector of the movement of the map to the integer parameter
         self.__move = integer
 
     def update(self):
@@ -1002,30 +792,15 @@ class BossMonster(pygame.sprite.Sprite):
 
 class Map(pygame.sprite.Sprite):
     def __init__(self, screen):
-        '''This function will load 4 maps and set the image attribute to the
-        first map. It takes a screen as a parameter'''
-        #Call the parent sprite
-        pygame.sprite.Sprite.__init__(self)
-
-        #Load the images of the maps and put them in a list
+        super().__init__()
         self.__list_of_images = []
         for i in range(1,5):
-            self.__temp_image = pygame.image.load\
-                ('./Maps/Map_' + str(i) + '.jpg').convert()
+            self.__temp_image = pygame.image.load('./Maps/Map_' + str(i) + '.jpg').convert()
             self.__list_of_images.append(self.__temp_image)
-
-        #Set the image to the first image
         self.image = self.__list_of_images[0]
-
-        #Set the rect attribute
         self.rect = self.image.get_rect()
-
-        #Variable to keep track of the current map
         self.__map = 0
-        #Variable to keep track of screen
         self.__screen = screen
-
-        #Variables to keep track of whether should move or not
         self.__move = 'none'
         self.__reach_end = True
 
@@ -1040,20 +815,12 @@ class Map(pygame.sprite.Sprite):
             self.rect = self.image.get_rect()
 
     def move(self, go_right):
-        '''This map moves the map in accordance to the player. It takes
-        a boolean variable as a parameter and sets the move attribute to 
-        'left' or 'right' depending on this parameter. This method will 
-        return True if map reached the end of the screen. Otherwise, it 
-        will return False'''
-        #Set a new value to __move attribute
         if go_right:
             self.__move = 'right'
         else:
             self.__move = 'left'
-        #If the end of the map is reached, return True
         if self.__reach_end:
             return True
-        #Otherwise, return False
         return False
 
     def update(self):
@@ -1076,72 +843,35 @@ class Map(pygame.sprite.Sprite):
 
 class Gold(pygame.sprite.Sprite):
     def __init__(self, screen, boss):
-        '''This initializer method will create a coin object and set its image 
-        and rect. It will take a screen and boss boolean variable as parmeters
-        and position the gold outside of the screen. The boss parameter will
-        determine the image to load as well as the value of the gold'''
-        #Call the parent __init__() method
-        pygame.sprite.Sprite.__init__(self)
-
-        #Set the gold's image attribute
+        super().__init__()
         if not boss:
             self.image = pygame.image.load('./OtherImages/gold.gif').convert()
         else:
             self.image = pygame.image.load('./OtherImages/gold_sack.gif').convert()
-
-        #Set the rect attributes
         self.rect = self.image.get_rect()
-
-        #Position the gold outside the screen
         self.rect.center = (-100,-100)
-
-        #Set the value of the gold to 0
         self.__value = 0
-
-        #Keep track of the screen and boss parameters
         self.__boss = boss
         self.__screen = screen
-
-        #This boolean variable will be used to move the gold with the map
         self.__map_moving = False
         self.__move = 0
 
     def reset(self, position, set_position):
-        '''This method updates the gold sprite. The set_position parameter will
-        hold either True or False. If it is True, that means that the gold and
-        player rects collided, if this is the case, the image will be positioned
-        off the screen. If False, it will assign a new, random value to the gold 
-        and position the coin on the screen in accordance with the position 
-        parameter which will be the position of where the monster died.'''
-        # Update the gold's rect attribute
         if not set_position:
-            # Assign a new value to the gold
             if not self.__boss:
                 self.__value = random.randrange(100,301)
             else:
                 self.__value = random.randrange(500,1201)
-            #Extract the x vector of the position parameter and place the
-            #Coin 85 pixels less than the screen's height and at the
-            #extracted x-vector
             self.rect.center = (position[0], self.__screen.get_height()-85)
-
         else:
             self.__value = 0
             self.rect.center = (-100,-100)
 
     def map_moving(self, integer):
-        '''This method will move the gold in a certain direcction that 
-        depends on the integer parameter. This is so that the gold does not 
-        stay in place even when when the map is moving. The gold will be moved
-        in the opposite direction of the map's movements. This method returns
-        nothing'''
-        #Set map_moving to True
         self.__map_moving = True
-        #Assign the vector of the movement of the map to integer
         self.__move = integer
 
     def get_value(self):
-        '''This method will return the value of the gold.'''
         return self.__value
 
     def update(self):
@@ -1153,103 +883,48 @@ class Gold(pygame.sprite.Sprite):
 
 class Damage(pygame.sprite.Sprite):
     def __init__(self, attack_who):
-        '''This class will create a custom font object. The attack_who parameter 
-        will determine the colour of the text and the damage will be placed 
-        initially outside the screen'''
-        # Call the parent __init__() method
-        pygame.sprite.Sprite.__init__(self)
-
-        #Create a custom font object
+        super().__init__()
         self.__font = pygame.font.Font('./Fonts/DAMAGE.ttf', 48)
-
-        #List of colours that will be used for the damage sprite
-        #The colour used will be determined by the attack_who parameter
         self.__list = [(255,106,106),(255,50,50),(225,0,54)]
         self.__colour = self.__list[attack_who]
-        self.__damage = self.__font.render('0', 1, self.__colour)
-
-        #Set image and rect attributes
+        self.__damage = self.__font.render('0', True, self.__colour)
         self.image = self.__damage
         self.rect = self.image.get_rect()
-        #Place the damage outside the screen
         self.rect.center = (-200,-200)
-
-        #Used to time how long the damage will stay visible
         self.__counter = 0
-
-        #This boolean variable will be used to move the damage with the map
         self.__map_moving = False
         self.__move = 0
 
     def update_damage(self, position, damage):
-        '''This method will take the amount of damage dealt and the position 
-        of the player/monster/boss as parameters. The damage will be placed
-        just on top of the player/boss/monster. This method will also render 
-        the text to the number in the damage parameter.'''
-        #Render font and assign it to the image attribute
-        #Message will be customized according to parameters
-        self.__damage = self.__font.render(str(damage), 1, self.__colour)
+        self.__damage = self.__font.render(str(damage), True, self.__colour)
         self.image = self.__damage
-        #Position the damage just above the player/monster/boss
         self.rect.midbottom = (position[0], position[1] - 20)
-        #Reset counter to 0
         self.__counter = 0
 
     def map_moving(self, integer):
-        '''This method will move the damage in a certain direction that 
-        depends on the integer parameter. This is so that the damage does not 
-        stay in place even when when the map is moving. The damage will be 
-        moved in the opposite direction of the map's movements. Thie method
-        returns nothing'''
-        #Set map_moving to True
         self.__map_moving = True
-        #Assign the vector of the movement of the map to integer
         self.__move = integer
 
     def update(self):
-        '''This method will position the image of the damage outside the
-        screen when enough time has passed so the damage will be unseen.
-        It will also check to see if the map is moving, if it is, the 
-        damage will be moved in the opposite direction of the map'''
         self.__counter += 1
         if self.__counter % 40 == 0:
-            #Place damage outside screen
             self.rect.center = (-200,-200)
-
-        #Check if map is moving, if it is move the damage text in the opposite
-        #direction
         if self.__map_moving:
             self.rect.centerx += self.__move
             self.__map_moving = False
 
 class HPBar(pygame.sprite.Sprite):
     def __init__(self, screen):
-        '''This method will create a red rectangle used as the HP bar for the 
-        Boss monster. This method will position the HP bar just under the Border 
-        sprite. This method will take a screen as a parmater'''
-        #Call the parent sprite
-        pygame.sprite.Sprite.__init__(self)
-
-        #Set the image attribute to a red rectangle the length of the screen
+        super().__init__()
         self.__hpBar = pygame.Surface((screen.get_width(), 7)).convert()
         self.__hpBar.fill((225,0,81))
         self.image = self.__hpBar
-
-        #Set the rect attribute
         self.rect = self.image.get_rect()
         self.rect.topleft = (0,50)
-
-        #List of maximum Health Points of the Bosses
         self.__list = [70000,80000,90000,100000]
-
-        #Set the maximum health_points of the first boss
         self.__health = self.__list[0]
-
-        #Keep track of width of bar
         self.__new_width = screen.get_width()
-        #Keep track of screen
         self.__screen = screen
-        #Keep track of boss number
         self.__current_boss = 0
 
     def reset(self):
@@ -1265,12 +940,7 @@ class HPBar(pygame.sprite.Sprite):
         self.__hpBar.fill((225,0,81))
 
     def take_damage(self,damage):
-        '''This function will resize the size of the HP Bar according to how
-        much damage was dealt on the boss'''
-        #Working with ratios to determine the new width of the HP Bar based on
-        #How much damage was dealt on the boss
-        self.__new_width = self.__new_width * (self.__health - damage) /self.__health
-        #Can't have negative width
+        self.__new_width = self.__new_width * (self.__health - damage) / self.__health
         if self.__new_width<= 0:
             self.__new_width = 0
         self.__health -= damage
@@ -1283,46 +953,21 @@ class HPBar(pygame.sprite.Sprite):
 
 class Attack(pygame.sprite.Sprite):
     def __init__(self,screen):
-        '''This method takes a screen as a parameter. The frames for the
-        animation will be loaded here and the image attribute will be assigned 
-        the first image of the attack_right lists of images.
-        The sprite will be positioned outside the screen where it will not 
-        interfere with other sprites'''
-        #Call the parent __init__() method
-        pygame.sprite.Sprite.__init__(self)
-
-        #Create lists of images to hold the attack animations
+        super().__init__()
         self.__attack_left = []
         for i in range(12):
-            self.__temp_image = pygame.image.load('./Skill/effect.1'+\
-                                                  '_' + str(i) + '.png')
+            self.__temp_image = pygame.image.load('./Skill/effect.1_' + str(i) + '.png')
             self.__attack_left.append(self.__temp_image)
-
         self.__attack_right = []
         for i in range(12):
-            self.__temp_image = pygame.image.load('./Skill/effect.2'+\
-                                                  '_' + str(i) + '.png')
+            self.__temp_image = pygame.image.load('./Skill/effect.2_' + str(i) + '.png')
             self.__attack_right.append(self.__temp_image)
-
-        #Set image attributes
         self.image = self.__attack_right[0]
-        #Get the rect attributes
         self.rect = self.image.get_rect()
-        #Set the center of the rect outside the screen so that
-        #it will not come in contact with any other sprites in the game
         self.rect.center = (-400,0)
-
-        #Attribute to index the above lists
         self.__index = 0
-
-        #Initialize self.__integer to 0
         self.__integer = 0
-
-        #Keep track of the screen
         self.__screen = screen
-
-        #This attribute will keep track of whether the animation is
-        #finished or not
         self.__finished = True
 
     def finish(self):
@@ -1388,47 +1033,24 @@ class Attack(pygame.sprite.Sprite):
 
 class Label(pygame.sprite.Sprite):
     def __init__(self, screen, health, amount, stage_num):
-        '''This initializer method will take 4 parameters: 
-        a screen, health_points to know the amount of HP the player has 
-        remaining, value to know how much the value of gold the player picked
-        up, and stage_num to know the current stage number. It will 
-        initialize the label to the center-top of the screen'''
-        # Call the parent __init__() method
-        pygame.sprite.Sprite.__init__(self)
-
-        #Create a custom font object
+        super().__init__()
         self.__font = pygame.font.Font('./Fonts/Handwritten.ttf', 32)
-
-        #Create atttributes for health points, amount of gold, and stage
         self.__health_points = health
         self.__amount = amount
         self.__stage = stage_num
-
-        #Keep track of screen
         self.__screen = screen
-
-        #Set the message that will be displayed in the label
-        self.__message = \
-            'HP: %d                   STAGE: %d                   GOLD: %d   '% \
-            (self.__health_points, self.__stage, self.__amount)
-        self.image = self.__font.render(self.__message, 1, (245,255,255))
-        #Set the image and rect attributes
+        self.__message = 'HP: %d                   STAGE: %d                   GOLD: %d   ' % (self.__health_points, self.__stage, self.__amount)
+        self.image = self.__font.render(self.__message, True, (245,255,255))
         self.rect = self.image.get_rect()
-        #Place the label on the top of the screen
         self.rect.center = (self.__screen.get_width()/2, 30)
 
     def set_health_points(self,health):
-        '''This method takes an integer (health) as a parameter and will set 
-        the __health_points attribute to the health paramaeter.'''
         self.__health_points = health
 
     def set_gold(self,value):
-        '''This method takes a value (integer) as a parameter and will add
-        the parameter to the __amount attribute'''
         self.__amount += value
 
     def get_gold(self):
-        '''This method will return the amount of gold the player collected'''
         return self.__amount
 
     def reset(self):
@@ -1436,14 +1058,9 @@ class Label(pygame.sprite.Sprite):
         self.__stage += 1
 
     def spend_gold(self):
-        '''This method subtracts 1000 gold from __amount. If the user does not 
-        have enough gold, do not allow action to take place. This method 
-        returns True if the user has enough, False, if not.'''
-        #If the user has enough gold, spend 1000 gold and return True
         if self.__amount >= 1000:
             self.__amount -= 1000
             return True
-        #Otherwise, return False
         return False
 
     def update(self):
@@ -1455,41 +1072,22 @@ class Label(pygame.sprite.Sprite):
 
 class NPC(pygame.sprite.Sprite):
     def __init__(self):
-        '''This initializer method will create the NPC for the game, by
-        setting its image and rect attributes'''
-        #Call the parent sprite's init method
-        pygame.sprite.Sprite.__init__(self)
-
-        #Load a list of images for animation
+        super().__init__()
         self.__npc_images = []
         for i in range(12):
-            self.__temp_image = pygame.image.load\
-                ('./npc/npc' + str(i) + '.png').convert()
+            self.__temp_image = pygame.image.load('./NPC/npc' + str(i) + '.png').convert()
             self.__temp_image.set_colorkey((0,255,0))
             self.__npc_images.append(self.__temp_image)
-
-        #Initialize the image attribute to the first image of the list
         self.image = self.__npc_images[0]
-
-        #Set the rect attributes
         self.rect = self.image.get_rect()
         self.rect.midbottom = (250,300)
-
-        #Variables for animation purposes
         self.__index = 0
         self.__counter = 0
-
-        #This boolean variable will be used to move the NPC with the map
         self.__map_moving = False
         self.__move = 0
 
     def map_moving(self, integer):
-        '''This method will move the NPC in a certain direction that 
-        depends on the integer parameter. This is so that the npc is off 
-        the screen when the map moves a certain vector.'''
-        #Set map_moving to True
         self.__map_moving = True
-        #Assign the vector of the movement of the map to integer
         self.__move = integer
 
     def reset(self):
@@ -1581,45 +1179,19 @@ class Border(pygame.sprite.Sprite):
 
 class Portal(pygame.sprite.Sprite):
     def __init__(self,screen):
-        '''This method takes screen as a parameter. A list of animations
-        of the portal will be loaded here and the portal will be assigned
-        the first image of the in the list to its image attribute. 
-        It will be positioned outside the screen where it will not interfere
-        with other sprites.'''
-        # Call the parent __init__() method
-        pygame.sprite.Sprite.__init__(self)
-
-        #Create list of images of the portal
+        super().__init__()
         self.__list = []
         for i in range(6):
             self.__temp_image = pygame.image.load('./Portal/0_'+ str(i) + '.png')
             self.__list.append(self.__temp_image)
-
-        #Set image attributes
         self.image = self.__list[0]
-        #Get the rect attributes
         self.rect = self.image.get_rect()
-        #Set the center of the rect outside the screen so that
-        #it does not come into contact with any other sprites in the game
         self.rect.center = (0,-300)
-
-        #Attribute to index the above lists
         self.__index = 0
-
-        #Control the rate at which the animation of the portal updates
         self.__counter = 0
-
-        #Keep track of the screen
         self.__screen = screen
-
-        #This attribute will keep track of whether or not the portal needs to
-        #reposition itself
         self.__reset = True
-
-        #Y vector of the portal
         self.__dy = 0
-
-        #This boolean variable will be used to move the portal with the map
         self.__map_moving = False
         self.__move = 0
 
@@ -1641,12 +1213,7 @@ class Portal(pygame.sprite.Sprite):
         self.__dy = 0
 
     def map_moving(self, integer):
-        '''This method will move the portal in a certain direction that 
-        depends on the integer parameter. This is so that the portal moves
-        alongside with the map. This method returns nothing'''
-        #Set map_moving to True
         self.__map_moving = True
-        #Assign the vector of the movement of the map to integer
         self.__move = integer
 
     def update(self):
@@ -1675,46 +1242,21 @@ class Portal(pygame.sprite.Sprite):
 
 class Reminder(pygame.sprite.Sprite):
     def __init__(self):
-        '''This function will create a font object for the game and position
-        it outside the screen.'''
-        #Call the parent sprite
-        pygame.sprite.Sprite.__init__(self)
-
-        #Create a custom font object
+        super().__init__()
         self.__font = pygame.font.Font('./Fonts/Handwritten.ttf', 22)
-
-        #Create a list containing two messages
-        self.__messages = \
-            ['Your HP is running low. If you have 1000 gold or more, click the NPC or spacebar', \
-             'You cleared the stage! Enter the portal to advance to the next stage']
-
-        #Set the image attribute
+        self.__messages = ['Your HP is running low. If you have 1000 gold or more, click the NPC or spacebar', 'You cleared the stage! Enter the portal to advance to the next stage']
         self.message = self.__messages[0]
-        self.image = self.__font.render\
-            (self.__messages[0], 1, (177,177,177))
-
-        #Variable used to index the list of messages
+        self.image = self.__font.render(self.__messages[0], True, (177,177,177))
         self.__index = 0
-
-        #Set the rect attribute
         self.rect = self.image.get_rect()
-
-        #Position the reminder outside the screen
         self.rect.bottom = 0
-
-        #Attribute to keep track of whether or not the reminder should
-        #be seen on the screen
         self.__show = False
 
     def show(self,index):
-        '''This method will reposition the reminder on the screen by
-        setting the __show attribute to True. It will take an index
-        as a parameter to know which reminder to show'''
         self.__index = index
         self.__show = True
 
     def reset(self):
-        '''This method will change the __show attribute to False '''
         self.__show = False
 
     def update(self):
