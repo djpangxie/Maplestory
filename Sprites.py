@@ -53,8 +53,6 @@ class Player(pygame.sprite.Sprite):
         return self.__health_points
 
     def get_direction(self):
-        '''This method returns the integer 2 if the player is facing 
-        right and 1 if facing left'''
         if self.__facing_right:
             return 2
         else:
@@ -70,7 +68,7 @@ class Player(pygame.sprite.Sprite):
             self.__resting = False
             self.rect.bottom = self.__screen.get_height() - 79
 
-    def attacking(self, finish):
+    def attacking(self):
         if not self.__attacking:
             self.__index = -1
             self.__counter = 0
@@ -79,8 +77,6 @@ class Player(pygame.sprite.Sprite):
             self.__attack_finish = False
 
     def attack_finished(self):
-        '''This method returns True if the attack is finished animating, False
-        if otherwise. This prevents the user from spamming the attack key'''
         if self.__attack_finish:
             return True
         return False
@@ -308,7 +304,7 @@ class Monster(pygame.sprite.Sprite):
         self.__counter = 0
         self.__counter_list1 = [6,4,6,3]
         self.__counter_list2 = [4,3,10,6]
-        self.__index = random.randrange(0,3)
+        self.__index = random.randrange(-1,2)
         self.__dying_index = -1
         self.__dx = integer
         self.__map_moving = False
@@ -424,43 +420,22 @@ class Monster(pygame.sprite.Sprite):
         self.__move = integer
 
     def update(self):
-        '''This method will be responsible for repositioning the image on the 
-        screen as well as iterating through lists of images according to 
-        different Boolean variables, ultimately, causing the animations to occur.
-        It will also check if the monster has reached the end of the screen.
-        If the monster died, it will move it outside of the screen where it 
-        will not be hit by the player'''
-        #Check if monster ran out of health points
-        if self.__health_points <=0:
+        if self.__health_points <= 0:
             self.__dead = True
-
-        #Check if the monster animation finished dying
         if self.__finished:
-            #Move the image outside of the screen on the other side of attack sprite
             self.rect.center= (1500,0)
-
-        #Animate the monster
-        if self.__counter % self.__counter_list1[self.__current_monster-1] == 0 \
-           and not self.__dead:
+        if self.__counter % self.__counter_list1[self.__current_monster-1] == 0 and not self.__dead:
             if self.__current_monster != 4:
                 try:
                     self.__index += 1
                     self.image = self.__moving[self.__index]
                 except IndexError:
-                    #If there is an index error, that meansthe animation reached
-                    #its end, reset the index to 0 for animation to continue
                     self.__index = 0
-                #Checking to see if the monster reached the end of the screen
-                #If not, continue to move the monster
                 if self.rect.left > 0 and self.__dx <0:
-                    self.rect.left += 3 *self.__dx
-                elif self.rect.right < self.__screen.get_width() and self.__dx >0:
                     self.rect.left += 3 * self.__dx
-
+                elif self.rect.right < self.__screen.get_width() and self.__dx > 0:
+                    self.rect.left += 3 * self.__dx
             else:
-                #The fourth and final monster will behave more like a boss monster
-                #It will reverse directions if it hits the top/bottom, or ends
-                #of the map
                 try:
                     self.__index += 1
                     if self.__going_left:
@@ -469,27 +444,17 @@ class Monster(pygame.sprite.Sprite):
                         self.image = self.__attacking_right4[self.__index]
                 except IndexError:
                     self.__index = 0
-
-                # hecking to see if the 4th monster reached the end of the screen
-                if ((self.rect.left > 0) and (self.__dx < 0)) or\
-               ((self.rect.right < self.__screen.get_width()) and (self.__dx > 0)):
+                if ((self.rect.left > 0) and (self.__dx < 0)) or ((self.rect.right < self.__screen.get_width()) and (self.__dx > 0)):
                     self.rect.left += 3* self.__dx
-                #If so reverse the x direction
                 else:
-                    self.__dx = self.__dx * -1
+                    self.__dx *= -1
                     self.__going_left = not self.__going_left
-
-                #Check to see if the fourth monster reached top of screen
-                if ((self.rect.top > 0) and (self.__dy > 0)) or\
-               ((self.rect.bottom < self.__screen.get_height() - 70) and (self.__dy < 0)):
+                if ((self.rect.top > 0) and (self.__dy > 0)) or ((self.rect.bottom < self.__screen.get_height() - 70) and (self.__dy < 0)):
                     self.rect.top -= 3*self.__dy
-                #If yes, reverse the y direction.
                 else:
-                    self.__dy = -self.__dy
-
-        #If monster died, change animation to it dying
-        if self.__counter %self.__counter_list2[self.__current_monster-1] == 0\
-           and self.__dead:
+                    self.__dy *= -1
+            self.__counter = 0
+        if self.__counter % self.__counter_list2[self.__current_monster-1] == 0 and self.__dead:
             try:
                 self.__dying_index += 1
                 if self.__current_monster !=4:
@@ -500,21 +465,14 @@ class Monster(pygame.sprite.Sprite):
                     else:
                         self.image = self.__dying_right4[self.__dying_index]
             except IndexError:
-                #There will be an indexerror when the animation of the monster
-                #finished
                 self.__finished = True
                 self.__dead = False
-
-        #Check if map is moving, if it is move the monster the opposite way
+            self.__counter = 0
         if self.__map_moving:
             self.rect.centerx += self.__move
             self.__map_moving = False
-
         if not self.__finished:
-            #Store the position of the monster before it dies and gets
-            #moved off the screen
             self.__position = self.rect.center
-
         self.__counter += 1
 
 class BossMonster(pygame.sprite.Sprite):
@@ -615,7 +573,7 @@ class BossMonster(pygame.sprite.Sprite):
         self.__direction_left = True
         self.__counter = 0
         self.__index = 1
-        self.__dying_index = 0
+        self.__dying_index = -1
         self.__dx = -9
         self.__dy = 0
         self.__current_boss = 1
@@ -716,53 +674,30 @@ class BossMonster(pygame.sprite.Sprite):
         self.__move = integer
 
     def update(self):
-        '''This method will be responsible for repositioning the sprite on the 
-        screen as well as iterating through the list of images, causing the 
-        animations to occur. It will also check if the boss has reached the 
-        end of the screen, and if so, it will reverse its direction.'''
-        #Check if boss monster ran out of health points
-        if self.__health_points <=0:
-            #If so, the monster is dead; assign dead attribute to True
+        if self.__health_points <= 0:
             self.__dead = True
-
-        #Animate the boss
-        if self.__counter % self.__counter_list1[self.__current_boss-1] == 0 \
-           and not self.__dead:
+            self.__counter = 0
+        if self.__counter % self.__counter_list1[self.__current_boss-1] == 0 and not self.__dead:
             try:
                 if self.__direction_left:
                     self.image = self.__going_left[self.__index]
                 else:
                     self.image = self.__going_right[self.__index]
             except IndexError:
-                #If there is an IndexError, that means that the animation reached
-                #the end, so reset index to 0 to restart the animation
                 self.__index = 0
             self.__index += 1
-
-            #Checking to see if the monster reached the end of the map
-            if ((self.rect.left > 0) and (self.__dx < 0)) or\
-               ((self.rect.right < self.__screen.get_width()) \
-                and (self.__dx > 0)):
+            if ((self.rect.left > 0) and (self.__dx < 0)) or ((self.rect.right < self.__screen.get_width()) and (self.__dx > 0)):
                 self.rect.left += self.__dx
-
-            #If so reverse the x direction
             else:
-                self.__dx = self.__dx * -1
+                self.__dx *= -1
                 self.__direction_left = not self.__direction_left
-
-            #Check to see if the monster reached top of screen
-            if ((self.rect.top > 0) and (self.__dy > 0)) or\
-           ((self.rect.bottom < self.__screen.get_height()-70) and (self.__dy < 0)):
+            if ((self.rect.top > 0) and (self.__dy > 0)) or ((self.rect.bottom < self.__screen.get_height()-70) and (self.__dy < 0)):
                 self.rect.top -= self.__dy
-            #If yes, then reverse the y direction.
             else:
-                self.__dy = -self.__dy
-
-        #Checking to see if monster died, if so, animate dying frames
-        if self.__counter % self.__counter_list2[self.__current_boss-1] == 0 \
-           and self.__dead:
+                self.__dy *= -1
+            self.__counter = 0
+        if self.__counter % self.__counter_list2[self.__current_boss-1] == 0 and self.__dead:
             self.__dying_index += 1
-            #Tweaking rect position
             self.rect.bottom = self.__dying_position[self.__current_boss-1]
             try:
                 if self.__direction_left:
@@ -770,24 +705,15 @@ class BossMonster(pygame.sprite.Sprite):
                 else:
                     self.image = self.__dying_right[self.__dying_index]
             except IndexError:
-                #If there is an IndexError, that means that the animation
-                #of the boss dying has finished
                 self.__finished = True
-
-        #Check if map is moving, if it is move the boss the opposite way
+            self.__counter = 0
         if self.__map_moving:
             self.rect.centerx += self.__move
             self.__map_moving = False
-
         if not self.__finished:
-            #Store the position of the boss before it dies and gets
-            #moved off the screen
             self.__position = self.rect.center
         else:
-            #If the boss died, place it out of the screen
             self.rect.center = (-700,-100)
-
-        #Add one to counter
         self.__counter += 1
 
 class Map(pygame.sprite.Sprite):
@@ -824,21 +750,14 @@ class Map(pygame.sprite.Sprite):
         return False
 
     def update(self):
-        '''This method updates the map image by moving it according to the
-        move and reach end attributes'''
-        #Move the map accordingly (until it reaches its end)
-        if self.__move == 'right' and \
-           self.rect.right >= self.__screen.get_width()+5:
+        if self.__move == 'right' and self.rect.right >= self.__screen.get_width()+5:
             self.rect.right -= 6
             self.__reach_end = False
-
         elif self.__move == 'left'  and self.rect.left <=-5:
             self.rect.left += 6
             self.__reach_end = False
-
         else:
             self.__reach_end = True
-
         self.__move = 'none'
 
 class Gold(pygame.sprite.Sprite):
@@ -875,8 +794,6 @@ class Gold(pygame.sprite.Sprite):
         return self.__value
 
     def update(self):
-        '''This method will check if map is moving, if it is, move the gold 
-        in the opposite direction of the map'''
         if self.__map_moving:
             self.rect.centerx += self.__move
             self.__map_moving = False
@@ -884,7 +801,7 @@ class Gold(pygame.sprite.Sprite):
 class Damage(pygame.sprite.Sprite):
     def __init__(self, attack_who):
         super().__init__()
-        self.__font = pygame.font.Font('./Fonts/DAMAGE.ttf', 48)
+        self.__font = pygame.font.Font('./Fonts/DAMAGE.TTF', 48)
         self.__list = [(255,106,106),(255,50,50),(225,0,54)]
         self.__colour = self.__list[attack_who]
         self.__damage = self.__font.render('0', True, self.__colour)
@@ -909,6 +826,7 @@ class Damage(pygame.sprite.Sprite):
         self.__counter += 1
         if self.__counter % 40 == 0:
             self.rect.center = (-200,-200)
+            self.__counter = 0
         if self.__map_moving:
             self.rect.centerx += self.__move
             self.__map_moving = False
@@ -928,13 +846,8 @@ class HPBar(pygame.sprite.Sprite):
         self.__current_boss = 0
 
     def reset(self):
-        '''This function will add one to the current boss attribute and set
-        the new maximum health of the monster. This function will also reset 
-        the health bar to full HP, meaning back to the width of the screen'''
         self.__current_boss += 1
-        #Set the new maximum health of boss
         self.__health = self.__list[self.__current_boss]
-        #Reset the width of the bar
         self.__new_width = self.__screen.get_width()
         self.__hpBar = pygame.Surface((self.__new_width , 7)).convert()
         self.__hpBar.fill((225,0,81))
@@ -948,7 +861,6 @@ class HPBar(pygame.sprite.Sprite):
         self.__hpBar.fill((225,0,81))
 
     def update(self):
-        '''This method will update the image of the HP Bar'''
         self.image = self.__hpBar
 
 class Attack(pygame.sprite.Sprite):
@@ -971,64 +883,34 @@ class Attack(pygame.sprite.Sprite):
         self.__finished = True
 
     def finish(self):
-        '''This method will be called when the animation is over. It will return
-        True when the animation is finished, False otherwise. This avoids the 
-        player from spamming their attack'''
         if self.__finished:
             return True
         return False
 
     def start(self, integer, position):
-        '''This method takes takes an integer and position as parameters. 
-        The integer will be either 1 or 2, if it is 1 this means that the 
-        player is attacking and facing left. If it is 2 the player is facing
-        right. It will assign the position of the attack to the 
-        position of the attack. This method returns nothing'''
-        #If the integer is 1, the player is facing left
-        if integer == 1:
-            self.__index = -1
-            self.__integer = 1
-            #Position the effect where the player is
-            self.__position = position
-
-        #If the integer is 2, the player is facing right
-        elif integer == 2:
-            self.__index = 0
-            #Assign value to self.__integer to be used in update
-            self.__integer = 2
-            #Position effect where player is
-            self.__position = position
-
+        self.__index = -1
+        self.__integer = integer
+        self.__position = position
         self.__finished = False
 
     def update(self):
-        '''This method will update the image attribute causing it to animate.'''
-        # Animate the effect
-        #If the integer attribute holds a 1, the player is attacking left
         if self.__integer == 1:
             try:
                 self.__index += 1
                 self.image = self.__attack_left[self.__index]
-                #Place the effect to where the player is located
                 self.rect.midright = (self.__position[0]+50, self.__position[1] - 25)
-            #When there is an index error, the effect is finished
             except IndexError:
+                self.__integer = 0
                 self.__finished = True
-                #Set the center of the rect to outside of screen so that
-                #it no longer comes in contact with any other sprites in the game
                 self.rect.center = (-400,0)
-
-        #If the integer attribute holds a 2, the player is attacking right
         elif self.__integer == 2:
             try:
                 self.__index += 1
                 self.image = self.__attack_right[self.__index]
-                #Place the effect to where the player is located
                 self.rect.midleft = (self.__position[0] -50, self.__position[1] - 25)
-            #When there is an index error, the effect is finished
             except IndexError:
+                self.__integer = 0
                 self.__finished= True
-                #Place the attack outside the screen
                 self.rect.center = (-400,0)
 
 class Label(pygame.sprite.Sprite):
@@ -1064,11 +946,8 @@ class Label(pygame.sprite.Sprite):
         return False
 
     def update(self):
-        '''This method will update the text in the label'''
-        self.__message = \
-            'HP: %d                   STAGE: %d                   GOLD: %d   '% \
-            (self.__health_points, self.__stage, self.__amount)
-        self.image = self.__font.render(self.__message, 1, (245,255,255))
+        self.__message = 'HP: %d                   STAGE: %d                   GOLD: %d   '% (self.__health_points, self.__stage, self.__amount)
+        self.image = self.__font.render(self.__message, True, (245,255,255))
 
 class NPC(pygame.sprite.Sprite):
     def __init__(self):
@@ -1096,18 +975,13 @@ class NPC(pygame.sprite.Sprite):
         self.rect.midbottom = (250,300)
 
     def update(self):
-        '''This method will update the animation of the npc and check if the
-        map is moving.'''
-        #Animate the frames
         self.__counter += 1
         if self.__counter % 10 == 0:
             self.__index += 1
-            #Check if the index exceeded the length of list
             if self.__index >= 12:
                 self.__index = 0
             self.image = self.__npc_images[self.__index]
-
-        #Check if map is moving, if it is move the NPC the opposite way
+            self.__counter = 0
         if self.__map_moving:
             self.rect.centerx += self.__move
             self.__map_moving = False
@@ -1196,10 +1070,6 @@ class Portal(pygame.sprite.Sprite):
         self.__move = 0
 
     def boss_killed(self):
-        '''This method will reset the portal effect. It set __dy to 15 so that
-        the portal will move down the screen when this method is called.
-        It will place the portal at the right end of the screen. This method 
-        returns nothing'''
         if self.__reset:
             self.__dy = 15
             self.rect.centerx = self.__screen.get_width() - 180
@@ -1217,25 +1087,16 @@ class Portal(pygame.sprite.Sprite):
         self.__move = integer
 
     def update(self):
-        '''This method will update the image attribute causing it to animate.
-        It will also move the portal down the screen if necessary. If the
-        map is moving, the portal will be moved the opposite direction'''
-        #Check if the portal reached the bottom of the screen
         self.__counter += 1
         if self.rect.bottom <= self.__screen.get_height() - 79:
             self.rect.bottom += self.__dy
-
-        # Animate the effect    
         if self.__counter % 6 == 0:
             try:
                 self.image = self.__list[self.__index]
                 self.__index += 1
-            #When there is an index error, that means the animation ended
             except IndexError:
-                #Reset the animation
                 self.__index = 0
-
-        #Check if map is moving, if it is move the portal the opposite direction
+            self.__counter = 0
         if self.__map_moving:
             self.rect.centerx += self.__move
             self.__map_moving = False
@@ -1260,13 +1121,8 @@ class Reminder(pygame.sprite.Sprite):
         self.__show = False
 
     def update(self):
-        '''This method will check whether or not the message should
-        be shown, if so it will position the text on the screen. Otherwise
-        the text will be placed off the screen'''
         if self.__show:
             self.rect.midtop = (542,59)
-            self.image = self.__font.render\
-                (self.__messages[self.__index], 1, (0,0,0))
+            self.image = self.__font.render(self.__messages[self.__index], True, (0,0,0))
         else:
-            #Position the reminder outside the screens
             self.rect.bottom = 0

@@ -37,7 +37,7 @@ def game(cursor, gender):
     damages.append(Sprites.Damage(2))
     mapMovementGroup = pygame.sprite.Group(monsters, player, golds, npc, damages, boss, portal)
     resetGroup = pygame.sprite.Group(healthPointBar, boss, maps, player, npc, label, monsters, portal)
-    allSprites = pygame.sprite.OrderedUpdates(maps, border, tracker, healthPointBar, boss, monsters,player, effect, damages, golds, label, npc, portal, reminder, cursor)
+    allSprites = pygame.sprite.OrderedUpdates(maps, border, tracker, healthPointBar, boss, monsters, player, effect, damages, golds, label, npc, portal, reminder, cursor)
     monster1 = pygame.mixer.Sound('./Sound Effects/OrangeMushroomDie.wav')
     monster1.set_volume(0.4)
     monster2 = pygame.mixer.Sound('./Sound Effects/Leprechaun1Die.wav')
@@ -80,6 +80,8 @@ def game(cursor, gender):
     play_sound = True
     game_over = False
     winner = False
+    key_left = False
+    key_right = False
     pygame.mouse.set_visible(False)
     while keepGoing:
         clock.tick(30)
@@ -87,50 +89,63 @@ def game(cursor, gender):
             if event.type == pygame.QUIT:
                 keepGoing = False
             elif event.type == pygame.KEYDOWN:
-                keyName = pygame.key.name(event.key)
-                if keyName == 'x':
+                if event.key == pygame.K_x:
                     player.jump()
-                if keyName == 'left':
-                    player.moving(-6)
-                    player_moving_left = True
-                if keyName == 'right':
-                    player.moving(6)
-                    player_moving_right = True
-                if keyName == 'z':
-                    if effect.finish():
-                        player.attacking(player.attack_finished())
-                        effect.start(player.get_direction(),player.rect.center)
+                elif event.key == pygame.K_LEFT:
+                    key_left = True
+                    if key_right:
+                        player.moving(0)
+                        player_moving_right = False
+                    else:
+                        player.moving(-6)
+                        player_moving_left = True
+                elif event.key == pygame.K_RIGHT:
+                    key_right = True
+                    if key_left:
+                        player.moving(0)
+                        player_moving_left = False
+                    else:
+                        player.moving(+6)
+                        player_moving_right = True
+                elif event.key == pygame.K_z:
+                    if effect.finish() and player.attack_finished():
+                        player.attacking()
+                        effect.start(player.get_direction(), player.rect.center)
                         attack_sound.play()
-                if keyName == 'up' and player.rect.collidepoint(portal.rect.center):
+                elif event.key == pygame.K_UP and player.rect.collidepoint(portal.rect.center):
                     enter.play()
                     if current_stage < 3:
                         gold_list = false_list[:]
                         play_sound = True
                         current_stage += 1
                         pygame.mixer.music.fadeout(3000)
-                        pygame.mixer.music.load('./Background music/music'+str(current_stage+1) + '.mp3')
+                        pygame.mixer.music.load('./Background music/music' + str(current_stage + 1) + '.mp3')
                         pygame.mixer.music.set_volume(0.3)
                         pygame.mixer.music.play(-1)
                         for sprite in resetGroup:
-                            sprite.reset() 
+                            sprite.reset()
                         for gold in golds:
-                            gold.reset((-100,-100), True)
+                            gold.reset((-100, -100), True)
                     else:
                         keepGoing = False
                         winner = True
-                if keyName == 'space':
-                    if label.spend_gold():
-                        player.recover()
-                        heal.play()
-                        label.set_health_points(5000)
-                        tracker.set_text('-1000')
             elif event.type == pygame.KEYUP:
-                if event.key == pygame.K_RIGHT:
-                    player.moving(0)   
-                    player_moving_right =False
                 if event.key == pygame.K_LEFT:
-                    player.moving(0)
-                    player_moving_left = False
+                    key_left = False
+                    if key_right:
+                        player.moving(+6)
+                        player_moving_right = True
+                    else:
+                        player.moving(0)
+                        player_moving_left = False
+                elif event.key == pygame.K_RIGHT:
+                    key_right = False
+                    if key_left:
+                        player.moving(-6)
+                        player_moving_left = True
+                    else:
+                        player.moving(0)
+                        player_moving_right = False
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 click.play()
                 cursor.click()
@@ -140,7 +155,7 @@ def game(cursor, gender):
                         player.recover()
                         heal.play()
                         label.set_health_points(5000)
-                        tracker.set_text('-1000')
+                        tracker.set_text('-1000￥')
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 cursor.release()
         # if player.rect.colliderect(boss.rect) and counter % 30 == 0:
@@ -179,7 +194,7 @@ def game(cursor, gender):
                 golds[8].reset(boss.get_position(),False)
             portal.boss_killed() 
         elif player.get_health_points() <= 1500:
-            reminder.show(0)   
+            reminder.show(0)
         else:
             reminder.reset()
         if player.rect.centerx > screen.get_width()/2 and player_moving_right and not maps.move(True):
@@ -359,7 +374,7 @@ def instructions(cursor):
                     else:
                         player.moving(+5)
                 elif event.key == pygame.K_z:
-                    player.attacking(True)
+                    player.attacking()
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
                     key_left = False
@@ -425,15 +440,15 @@ def selection(cursor):
                 cursor.click()
                 click.play()
                 if male_button.rect.collidepoint(event.pos):
-                    pygame.mixer.music.fadeout(8000)
+                    pygame.mixer.music.fadeout(5000)
                     enter.play()
                     return 2
                 elif female_button.rect.collidepoint(event.pos):
-                    pygame.mixer.music.fadeout(8000)
+                    pygame.mixer.music.fadeout(5000)
                     enter.play()
                     return 1
                 elif other_button.rect.collidepoint(event.pos):
-                    pygame.mixer.music.fadeout(8000)
+                    pygame.mixer.music.fadeout(5000)
                     enter.play()
                     return 3
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
